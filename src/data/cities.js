@@ -4,4 +4,13 @@ export let cities = [
 	{ id: 3, name: 'Tokyo', country: 'Japan', population: 37000000 },
 ];
 
-export let nextId = 3;
+// this is like the autoincreament in dbs for me here.
+export let nextId = 4;
+export const incrementNextId = () => {
+	nextId = nextId + 1;
+};
+// Helper to find city index by id since deleting will mess the id to index relation.
+
+export const findCityIndexById = (id) => {
+	return cities.findIndex((city) => city.id === Number(id));
+};
