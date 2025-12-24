@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cityRoutes from './routes/city.routes.js';
 
 dotenv.config();
 
@@ -8,17 +9,13 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Temporary in-memory data (will move this later)
-let cities = [];
-
-// Basic check
+// Health check
 app.get('/', (req, res) => {
 	res.json({ message: 'City CRUD API is running!' });
 });
 
-app.get('/cities', (req, res) => {
-	res.json(cities);
-});
+//city routes
+app.use('/cities', cityRoutes);
 
 // Start server
 app.listen(PORT, () => {
