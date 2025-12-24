@@ -1,5 +1,7 @@
 import express from 'express';
 import { cities, nextId, findCityIndexById, incrementNextId } from '../data/cities.js';
+import validate from '../middleware/validate.js';
+import { createCitySchema, updateCitySchema } from '../validation/city.schema.js';
 
 const router = express.Router();
 
@@ -18,18 +20,10 @@ router.get('/:id', (req, res) => {
 });
 
 // POST create new city
-router.post('/', (req, res) => {
-	const { name, country, population } = req.body;
-
-	if (!name || !country) {
-		return res.status(400).json({ error: 'Name and country are required' });
-	}
-
+router.post('/', validate(createCitySchema), (req, res) => {
 	const newCity = {
 		id: nextId,
-		name: String(name).trim(),
-		country: String(country).trim(),
-		population: population ? Number(population) : null,
+		...req.body, // Already validated and trimmed
 	};
 	incrementNextId();
 	cities.push(newCity);
@@ -37,25 +31,14 @@ router.post('/', (req, res) => {
 });
 
 //update existing city
-router.put('/:id', (req, res) => {
+router.put('/:id', validate(updateCitySchema), (req, res) => {
 	const index = findCityIndexById(req.params.id);
 	if (index === -1) {
 		return res.status(404).json({ error: 'City not found' });
 	}
 
-	const { name, country, population } = req.body;
-
-	if (!name || !country) {
-		return res.status(400).json({ error: 'Name and country are required' });
-	}
-
-	cities[index] = {
-		...cities[index],
-		name: String(name).trim(),
-		country: String(country).trim(),
-		population: population !== undefined ? Number(population) : cities[index].population,
-	};
-
+	// Merge validated updates (PUT allows partial since schema makes fields optional)
+	cities[index] = { ...cities[index], ...req.body };
 	res.json(cities[index]);
 });
 
